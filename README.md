@@ -1,1 +1,1 @@
-# Sudoku
+# Sudoku built from scratch
