@@ -1,5 +1,6 @@
 import time
 import random
+import copy
 # From color python file import color class
 from color import color
 
@@ -7,8 +8,10 @@ class Sudoku:
     def __init__(self):
         # Makes 9 arrays of 9 " " squares
         self.board = [[" " for i in range(9)] for i in range(9)]
+        self.board_copy = [[" " for i in range(9)] for i in range(9)]
         self.winner = False
-        self.com_gen = []
+        self.solution_board = [[" " for i in range(9)] for i in range(9)]
+        self.num_solutions = 0
     # Displays the sudoku board
     def display_board(self):
         index = 0 
@@ -19,7 +22,7 @@ class Sudoku:
         print(" -------------------------------------")
         # Prints board one row at a time 
         for row in self.board:
-            string = str(index) + "| " + " | ".join(row) + " |"
+            string = str(index) + "| " + " | ".join(str(num) for num in row) + " |"
             print(string)
             if index % 3 == 0:
                 print(" -------------------------------------")
@@ -28,19 +31,127 @@ class Sudoku:
             index += 1
 
     # Computer places in numbers
-    def com_gen(self,totalnums):
-        print("Here is the computer generated numbers")
+    # Using backtracking 
+    def generate_numbers(self):
+        for r in range(0,9):
+            for c in range(0,9):
+                if self.board[r][c] == " ":
+                    numbers = list(range(1, 10))
+                    random.shuffle(numbers)
+                    for num in numbers:
+                        self.board[r][c] = num
+                        # Checks if the number is not a dupe
+                        if self.is_dup(self.board,r, c):
+                            # Continue with the next cell
+                            if self.generate_numbers():
+                                return True
+                        
+                        # Undo the move (backtrack)
+                        self.board[r][c] = " "
+                    return False
+        self.solution_board = copy.deepcopy(self.board)
+        return True
+
+    # Removes numbers from the board
+    def remove_nums(self):
+        for row in self.board:
+            numbers = list(range(1,10))
+            random.shuffle(numbers)
+            # Number of missing numbers
+            for i in range(random.randint(1,2)):
+                numbers.pop(0)
+            for col, spot in enumerate(row):
+                if not spot in numbers:
+                    row[col] = " "
+            self.board_copy = copy.deepcopy(self.board)
+    # Makes sure there is only one solution using naive backtracking
+    def check_multiple_solutions(self):
+        for r in range(0,9):
+            for c in range(0,9):
+                if self.board_copy[r][c] == " ":
+                    for i in range(1,10):
+                        self.board_copy[r][c] = i
+                        # Checks if the number is not a dupe
+                        if self.is_dup(self.board_copy,r, c):
+                            # Continue with the next cell
+                            if self.check_multiple_solutions():
+                                return True
+                        
+                        # Undo the move (backtrack)
+                        self.board_copy[r][c] = " "
+                    return False
+        # If this is a solution add one to the num solutions variable
+        self.num_solutions += 1
+        print(f"{self.num_solutions} found")
+        # Instead of return True, return False allows program to keep exploring multiple solutions
+        return True
+
             
 
+
+    # Checks for dups either in rows or columns or square
+    def is_dup(self,board,comrow,comcol):
+        #print("Dupe has been run")
+        # Checks rows first
+        current_row = []
+        for number in board[comrow]:
+            if number != " ":
+                current_row.append(number)
+        sorted_row = sorted(current_row)
+        for i in range(len(sorted_row)-1):
+            if sorted_row[i] == sorted_row[i+1]:
+                #print("Theres a dupe in rows")
+                return False
+                
+        #print("Row pass")
+        # Checks columns
+        current_col = []
+        for row in board:
+            if row[comcol] != " ":
+                current_col.append(row[comcol])
+        sorted_col = sorted(current_col)
+        #print(sorted_col)
+        for i in range(len(sorted_col)-1):
+            if sorted_col[i] == sorted_col[i+1]:
+                #print("Theres a dupe in cols")
+                return False
+                
+        #print("Col pass")
+        # Checks squares
+        board_copy = board
+        start_row = int(comrow) / 3
+        start_col = int(comcol) / 3
+        current_square = []
+        for i in range(int(start_row)*3,(int(start_row)+1)*3):
+            for j in range(int(start_col)*3,int(int(start_col)+1*3)):
+                if str(board_copy[i][j]) != " ":
+                    current_square.append(str(board_copy[i][j]))
+        
+        sorted_square = sorted(current_square)
+        for i in range(len(sorted_square)):
+            if sorted_square[i] != " ":
+                sorted_square.append(i)
+        for i in range(len(sorted_square)-1):
+            if sorted_square[i] == sorted_square[i+1]:
+                print(f" Checking {sorted_square[i]} and {sorted_square[i+1]}")
+                #print(sorted_square)
+                print(f"Theres a dupe in squares {start_row}{start_col}")
+                return False
+                
+        #print("Square pass")
+        return True
+        
+
+        
     # Checks if sudoku has been completed
     def check_win(self):
         # Check rows first 
         row_check = True
         for row in self.board:
-            sorted(row)
-            for i in range(len(row)-1):
-                if row[i] == row[i+1] or row[i] == " " or row[i+1] == " ":
-                    row_check = False
+            sorted_row = sorted(row)
+            for i in range(len(sorted_row)-1):
+                if sorted_row[i] == sorted_row[i+1] or sorted_row[i] == " " or sorted_row[i+1] == " ":
+                    sorted_row = False
 
         # Check columns next
         col_check = True
@@ -53,8 +164,9 @@ class Sudoku:
             all_col.append(col)
             col.clear()
         for array in all_col:
-            for i in range(len(array)-1):
-                if array[i] == array[i+1] or array[i] == " " or array[i+1] == " ":
+            sorted_col = sorted(array)
+            for i in range(len(sorted_col)-1):
+                if sorted_col[i] == sorted_col[i+1] or sorted_col[i] == " " or sorted_col[i+1] == " ":
                     col_check = False
         # Finally check individual squares
         board_copy = self.board
@@ -64,12 +176,12 @@ class Sudoku:
                 for i in range(j*3,(j)*3):
                     for col in range(3):
                         square_nums.append(board_copy[i].pop(0))
-                sorted(square_nums)
-                for i in range(len(square_nums)-1):
-                    if square_nums[i] == square_nums[i+1] or square_nums[i] == " " or square_nums[i+1] == " ":
+                sorted_square = sorted(square_nums)
+                for i in range(len(sorted_square)-1):
+                    if sorted_square[i] == sorted_square[i+1] or sorted_square[i] == " " or sorted_square[i+1] == " ":
                         col_check = False
             square_nums.clear()
-            
+            sorted_square.clear()
     # Places the users move into the board
     def input_move(self):
         move = self.get_move()
@@ -80,6 +192,8 @@ class Sudoku:
         if self.board[int(row)][int(col)] in self.com_gen:
             return False
         if int(num) < 1 or int(num) > 9:
+            return False
+        if self.board_copy[row] == " " and self.board_copy[col] == " ":
             return False
         return True
 
@@ -109,7 +223,27 @@ class Sudoku:
 
     def game(self):
         self.display_board()
+        print("\n\n\n")
         time.sleep(.8)
+        self.generate_numbers()
+        self.remove_nums()
+        self.check_multiple_solutions()
+        
+        self.board = self.solution_board
+        self.remove_nums()
+        self.check_multiple_solutions()
+        while(self.num_solutions != 1):
+            time.sleep(.8)
+            print(f"{self.num_solutions} At start")
+            time.sleep(.8)
+            self.num_solutions = 0
+            self.board = copy.deepcopy(self.solution_board)
+            self.remove_nums()
+            self.check_multiple_solutions()
+    
+
+        self.display_board()
+        
         while self.winner == False:
             self.input_move()
             self.display_board()
