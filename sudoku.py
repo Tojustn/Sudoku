@@ -58,7 +58,7 @@ class Sudoku:
             numbers = list(range(1,10))
             random.shuffle(numbers)
             # Number of missing numbers
-            for i in range(random.randint(1,2)):
+            for i in range(1):
                 numbers.pop(0)
             for col, spot in enumerate(row):
                 if not spot in numbers:
@@ -123,11 +123,13 @@ class Sudoku:
         start_col = int(comcol) / 3
         current_square = []
         for i in range(int(start_row)*3,(int(start_row)+1)*3):
-            for j in range(int(start_col)*3,int(int(start_col)+1*3)):
+            for j in range(int(start_col)*3,int((int(start_col)+1)*3)):
                 if str(board_copy[i][j]) != " ":
                     current_square.append(str(board_copy[i][j]))
         
         sorted_square = sorted(current_square)
+        print(f"Checking squares {int(start_row)}  {int(start_col)}")
+        print(sorted_square)
         for i in range(len(sorted_square)):
             if sorted_square[i] != " ":
                 sorted_square.append(i)
@@ -189,11 +191,9 @@ class Sudoku:
         if self.check_win():
             print(" YOU WIN!!!! SO PRO")
     def valid_move(self,num,row,col):
-        if self.board[int(row)][int(col)] in self.com_gen:
-            return False
         if int(num) < 1 or int(num) > 9:
             return False
-        if self.board_copy[row] == " " and self.board_copy[col] == " ":
+        if self.board_copy[int(row)] == " " and self.board_copy[int(col)] == " ":
             return False
         return True
 
@@ -233,14 +233,10 @@ class Sudoku:
         self.remove_nums()
         self.check_multiple_solutions()
         while(self.num_solutions != 1):
-            time.sleep(.8)
-            print(f"{self.num_solutions} At start")
-            time.sleep(.8)
             self.num_solutions = 0
             self.board = copy.deepcopy(self.solution_board)
             self.remove_nums()
             self.check_multiple_solutions()
-    
 
         self.display_board()
         
