@@ -22,7 +22,7 @@ class Sudoku:
         print(" -------------------------------------")
         # Prints board one row at a time 
         for row in self.board:
-            string = str(index) + "| " + " | ".join(str(num) for num in row) + " |"
+            string = str(index) + "| " + " | ".join( str(num) for num in row) + " |"
             print(string)
             if index % 3 == 0:
                 print(" -------------------------------------")
@@ -147,14 +147,18 @@ class Sudoku:
         
     # Checks if sudoku has been completed
     def check_win(self):
+        is_row = True
         # Check rows first 
         row_check = True
         for row in self.board:
-            sorted_row = sorted(row)
+            all_int = []
+            for col in row:
+                all_int.append(str(col))
+                
+            sorted_row = sorted(all_int)
             for i in range(len(sorted_row)-1):
                 if sorted_row[i] == sorted_row[i+1] or sorted_row[i] == " " or sorted_row[i+1] == " ":
-                    sorted_row = False
-
+                    is_row = False
         # Check columns next
         col_check = True
         cur_col = 0
@@ -172,7 +176,9 @@ class Sudoku:
                     col_check = False
         # Finally check individual squares
         board_copy = self.board
+        square_check = True
         for square in range(9):
+            sorted_square = []
             square_nums = []
             for j in range(square):
                 for i in range(j*3,(j)*3):
@@ -181,13 +187,13 @@ class Sudoku:
                 sorted_square = sorted(square_nums)
                 for i in range(len(sorted_square)-1):
                     if sorted_square[i] == sorted_square[i+1] or sorted_square[i] == " " or sorted_square[i+1] == " ":
-                        col_check = False
+                        square_check = False
             square_nums.clear()
             sorted_square.clear()
     # Places the users move into the board
     def input_move(self):
         move = self.get_move()
-        self.board[int(move[1])][int(move[2])] = move[0]
+        self.board[int(move[1])][int(move[2])] = color.BOLD  +  str(move[0]) + color.END
         if self.check_win():
             print(" YOU WIN!!!! SO PRO")
     def valid_move(self,num,row,col):
