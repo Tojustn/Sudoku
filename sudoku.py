@@ -13,7 +13,7 @@ class Sudoku:
         self.solution_board = [[" " for i in range(9)] for i in range(9)]
         self.num_solutions = 0
     # Displays the sudoku board
-    def display_board(self):
+    def display_board(self,board):
         index = 0 
         column_index = "   "
         for i in range(9):
@@ -21,7 +21,7 @@ class Sudoku:
         print(column_index)
         print(" -------------------------------------")
         # Prints board one row at a time 
-        for row in self.board:
+        for row in board:
             string = str(index) + "| " + " | ".join( str(num) for num in row) + " |"
             print(string)
             if index % 3 == 0:
@@ -199,7 +199,7 @@ class Sudoku:
     def valid_move(self,num,row,col):
         if int(num) < 1 or int(num) > 9:
             return False
-        if self.board_copy[int(row)] == " " and self.board_copy[int(col)] == " ":
+        if self.board_copy[int(row)][int(col)] != " ":
             return False
         return True
 
@@ -228,7 +228,7 @@ class Sudoku:
 
 
     def game(self):
-        self.display_board()
+        self.display_board(self.board)
         print("\n\n\n")
         time.sleep(.8)
         self.generate_numbers()
@@ -244,11 +244,11 @@ class Sudoku:
             self.remove_nums()
             self.check_multiple_solutions()
 
-        self.display_board()
-        
+        self.display_board(self.board)
+        self.board_copy = copy.deepcopy(self.board)
         while self.winner == False:
             self.input_move()
-            self.display_board()
+            self.display_board(self.board)
 
 
 
