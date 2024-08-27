@@ -146,11 +146,11 @@ class Sudoku:
 
         
     # Checks if sudoku has been completed
-    def check_win(self):
+    def check_win(self,board):
         is_row = True
         # Check rows first 
         row_check = True
-        for row in self.board:
+        for row in board:
             all_int = []
             for col in row:
                 all_int.append(str(col))
@@ -158,14 +158,14 @@ class Sudoku:
             sorted_row = sorted(all_int)
             for i in range(len(sorted_row)-1):
                 if sorted_row[i] == sorted_row[i+1] or sorted_row[i] == " " or sorted_row[i+1] == " ":
-                    is_row = False
+                    return False
         # Check columns next
         col_check = True
         cur_col = 0
         all_col = []
         col = []
         for i in range(8):
-            for array in self.board:
+            for array in board:
                 col.append(array[cur_col])
             all_col.append(col)
             col.clear()
@@ -173,9 +173,11 @@ class Sudoku:
             sorted_col = sorted(array)
             for i in range(len(sorted_col)-1):
                 if sorted_col[i] == sorted_col[i+1] or sorted_col[i] == " " or sorted_col[i+1] == " ":
-                    col_check = False
+                    return False
+
+                    
         # Finally check individual squares
-        board_copy = self.board
+        board_copy = board
         square_check = True
         for square in range(9):
             sorted_square = []
@@ -187,15 +189,20 @@ class Sudoku:
                 sorted_square = sorted(square_nums)
                 for i in range(len(sorted_square)-1):
                     if sorted_square[i] == sorted_square[i+1] or sorted_square[i] == " " or sorted_square[i+1] == " ":
-                        square_check = False
+                        return False
             square_nums.clear()
             sorted_square.clear()
+        if row_check and col_check and square_check:
+            return True
+        else:
+            return False
     # Places the users move into the board
     def input_move(self):
         move = self.get_move()
         self.board[int(move[1])][int(move[2])] = color.BOLD  +  str(move[0]) + color.END
-        if self.check_win():
+        if self.check_win(self.board):
             print(" YOU WIN!!!! SO PRO")
+            self.winner = True
     def valid_move(self,num,row,col):
         if int(num) < 1 or int(num) > 9:
             return False
@@ -215,6 +222,7 @@ class Sudoku:
                 user_move.append(num)
                 user_move.append(row)
                 user_move.append(col)
+                print("Tried to place " + user_move[0] + " in " + user_move[1] + "," + user_move[2])
                 if self.valid_move(num,row,col) == False: # checks if row and col were already placed by a computer
                     raise ValueError # if not in val ValueError is raised
                 valid_square = True
@@ -235,7 +243,6 @@ class Sudoku:
         self.remove_nums()
         self.check_multiple_solutions()
         
-        self.board = self.solution_board
         self.remove_nums()
         self.check_multiple_solutions()
         while(self.num_solutions != 1):
