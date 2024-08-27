@@ -53,12 +53,12 @@ class Sudoku:
         return True
 
     # Removes numbers from the board
-    def remove_nums(self):
+    def remove_nums(self,diff: int):
         for row in self.board:
             numbers = list(range(1,10))
             random.shuffle(numbers)
             # Number of missing numbers
-            for i in range(1):
+            for i in range(diff):
                 numbers.pop(0)
             for col, spot in enumerate(row):
                 if not spot in numbers:
@@ -82,7 +82,7 @@ class Sudoku:
                     return False
         # If this is a solution add one to the num solutions variable
         self.num_solutions += 1
-        print(f"{self.num_solutions} found")
+        # print(f"{self.num_solutions} found")
         # Instead of return True, return False allows program to keep exploring multiple solutions
         return True
 
@@ -128,16 +128,16 @@ class Sudoku:
                     current_square.append(str(board_copy[i][j]))
         
         sorted_square = sorted(current_square)
-        print(f"Checking squares {int(start_row)}  {int(start_col)}")
-        print(sorted_square)
+        #print(f"Checking squares {int(start_row)}  {int(start_col)}")
+        #print(sorted_square)
         for i in range(len(sorted_square)):
             if sorted_square[i] != " ":
                 sorted_square.append(i)
         for i in range(len(sorted_square)-1):
             if sorted_square[i] == sorted_square[i+1]:
-                print(f" Checking {sorted_square[i]} and {sorted_square[i+1]}")
+                #print(f" Checking {sorted_square[i]} and {sorted_square[i+1]}")
                 #print(sorted_square)
-                print(f"Theres a dupe in squares {start_row}{start_col}")
+                #print(f"Theres a dupe in squares {start_row}{start_col}")
                 return False
                 
         #print("Square pass")
@@ -232,6 +232,20 @@ class Sudoku:
                 print("Out of Bounds bruv\n")
 
         return user_move
+    def get_difficulty(self):
+        try:
+            diff = input("What difficulty do you want (easy/medium/hard)? ").lower()
+            if diff not in ["easy", "medium", "hard"]:
+                raise ValueError
+            if diff == "easy":
+                return 1
+            elif diff == "medium":
+                return 3
+            else:
+                return 5
+        except ValueError:
+            print("Invalid input. Please type easy, medium, or hard.")
+            return self.get_difficulty()
         
 
 
@@ -240,15 +254,14 @@ class Sudoku:
         print("\n\n\n")
         time.sleep(.8)
         self.generate_numbers()
-        self.remove_nums()
-        self.check_multiple_solutions()
-        
-        self.remove_nums()
+        diff = self.get_difficulty()
+ 
+        self.remove_nums(diff)
         self.check_multiple_solutions()
         while(self.num_solutions != 1):
             self.num_solutions = 0
             self.board = copy.deepcopy(self.solution_board)
-            self.remove_nums()
+            self.remove_nums(diff)
             self.check_multiple_solutions()
 
         self.display_board(self.board)
