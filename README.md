@@ -1,4 +1,4 @@
-# Sudoku Game - Built from Scratch
+# Sudoku Game - Built from Scratch (Currently implementing pygames)
 ## Overview
 This project is a fully functioning Sudoku game implemented in Python. The game generates a random Sudoku puzzle using backtracking and ensures that the puzzle has only one unique solution also using naive backtracking. The user can solve the puzzle through console input, and the game provides feedback on the validity of the moves and whether the puzzle has been successfully completed.
 
