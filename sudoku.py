@@ -84,7 +84,7 @@ class Sudoku:
         self.num_solutions += 1
         # print(f"{self.num_solutions} found")
         # Instead of return True, return False allows program to keep exploring multiple solutions
-        return True
+        return False
 
             
 
